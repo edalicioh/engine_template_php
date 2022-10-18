@@ -1,0 +1,19 @@
+{% extends layout.layout %}
+
+{% block title %}Home Page{% endblock %}
+
+{% block content %}
+<h1>Home</h1>
+<p>Welcome to the home page!</p>
+
+
+<ul>
+    {% foreach ($list as $key => $value ): %}
+    <li>
+        {{ $value }}
+    </li>
+    {% endforeach %}
+</ul>
+
+
+{% endblock %}
