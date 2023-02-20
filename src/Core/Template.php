@@ -1,25 +1,33 @@
 <?php
-namespace Edalicio\EngineTemplate;
+
+namespace Edalicio\EngineTemplate\Core;
+
 class Template {
 
+	use Component;
+
 	private array $blocks = [];
-	private string $cachePath = 'cache/';
-	private bool $cacheEnabled  = false;
-    private string $viewPath  = '/views/';
-    private string $baseExt = '.html';
+
+	private string $cachePath ;
+	private bool $cacheEnabled  ;
+    protected string $viewPath ;
+    protected string $baseExt ;
+	protected array $data;
 
 
 
     function __construct(array $options = []) {
+		$options = array_merge(config('template' ), $options);
 		foreach ($options as $key => $value ){
             $this->$key =$value;
         }
     }
 
 	public function view(string $file, $data = []) {
+		$this->data = (array) $data;
 		$cached_file = $this->cache($file);
 		
-	    extract((array) $data, EXTR_SKIP);
+	    extract($this->data, EXTR_SKIP);
 	   	require $cached_file;
 	}
 
@@ -48,6 +56,7 @@ class Template {
 		$code = $this->compileEscapedEchos($code);
 		$code = $this->compileEchos($code);
 		$code = $this->compilePHP($code);
+		$code = $this->component($code);
 		return $code;
 	}
 
@@ -66,7 +75,7 @@ class Template {
 		return preg_replace('~\{%\s*(.+?)\s*\%}~is', '<?php $1 ?>', $code);
 	}
 
-	private function compileEchos($code) {
+	protected function compileEchos($code) {
 		return preg_replace('~\{{\s*(.+?)\s*\}}~is', '<?php echo $1 ?>', $code);
 	}
 
@@ -76,6 +85,7 @@ class Template {
 
 	private function compileBlock($code) {
 		preg_match_all('/{% ?block ?(.*?) ?%}(.*?){% ?endblock ?%}/is', $code, $matches, PREG_SET_ORDER);
+		// dd($matches);
 		foreach ($matches as $value) {
 			if (!array_key_exists($value[1], $this->blocks)) $this->blocks[$value[1]] = '';
 			if (strpos($value[2], '@parent') === false) {

@@ -4,13 +4,14 @@
 
 {% block content %}
 <h1>Home</h1>
-<p>Welcome to the home page!</p>
 
 
 <ul>
     {% foreach ($list as $key => $value ): %}
     <li>
-        {{ $value }}
+        <e-button title="{{ $key }}" ttt="papapap" >
+            {{ $key }}
+        </e-button>
     </li>
     {% endforeach %}
 </ul>
